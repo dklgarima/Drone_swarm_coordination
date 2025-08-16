@@ -4,7 +4,7 @@
 
 This repository contains the model, properties, data, and final report for the formal verification of a decentralized drone swarm coordination protocol.
 
-The system models a swarm of drones navigating a 2D grid with obstacles. The goal is for each drone to reach its target while avoiding collisions. The model is a Markov Decision Process (MDP) that captures both the non-deterministic choices of drone movements and the probabilistic outcomes of those movements.
+The system models a swarm of drones navigating a 2D grid with obstacles. The goal is for each drone to reach its target while trying to avoid collisions. The model is a Markov Decision Process (MDP) that captures both the non-deterministic choices of drone movements and the probabilistic outcomes of those movements.
 
 ## Repository Contents
 * `report.pdf`: The full research report.
