@@ -7,7 +7,7 @@ This repository contains the model, properties, data, and final report for the f
 The system models a swarm of drones navigating a 2D grid with obstacles. The goal is for each drone to reach its target while trying to avoid collisions. The model is a Markov Decision Process (MDP) that captures both the non-deterministic choices of drone movements and the probabilistic outcomes of those movements.
 
 ## Repository Contents
-* `report.pdf`: The full research report.
+* `lab_report.pdf`: The full research report.
 * `model.txt`: The source code for the PRISM/ProFeat model.
 * `property.txt`: The PCTL properties used for verification.
 * `data.txt`: The raw output data from the PRISM model checker.
