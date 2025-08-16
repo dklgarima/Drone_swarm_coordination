@@ -27,7 +27,7 @@ The core experiments were run with the following configuration:
 
 ## How to Run
 1.  Ensure you have [PRISM](https://www.prismmodelchecker.org/) installed.
-2.  Since the model uses features, you may need the [ProFeat](https://wwwtcs.inf.tu-dresden.de/ALGI/TOOLS/ProFeat/) extension to compose the model first.
+2.  Since the model uses features, you may need the [ProFeat](https://wwwtcs.inf.tu-dresden.de/ALGI/PUB/ProFeat/) extension to compose the model first.
 3.  Load the generated `.prism` file into PRISM.
 4.  Load the properties file (`.txt`) or enter the properties manually to verify them. The properties used in the experiments are listed in the tables below.
 
