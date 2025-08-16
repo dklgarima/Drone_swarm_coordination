@@ -1,0 +1,39 @@
+Pmax=? [ F "all_goals" ];
+Pmax=? [ F "all_collisions" ];
+Pmax=? [ F "all_obstacle_hit" ];
+Pmax=? [ F "all_crash" ];
+
+Pmin=? [ F "all_goals" ];
+Pmin=? [ F "all_collisions" ];
+Pmin=? [ F "all_obstacle_hit" ];
+Pmin=? [ F "all_crash" ];
+
+Pmax=? [ F "goal_0" ]  
+Pmax=? [ F "goal_1" ]  
+Pmax=? [ F "goal_2" ]  
+
+Pmin=? [ F "goal_0" ]  
+Pmin=? [ F "goal_1" ]  
+Pmin=? [ F "goal_2" ] 
+
+Pmax=? [ F "collision_0" ]  
+Pmax=? [ F "collision_1" ]  
+Pmax=? [ F "collision_2" ]  
+
+Pmin=? [ F "collision_0" ]  
+Pmin=? [ F "collision_1" ]  
+Pmin=? [ F "collision_2" ]  
+
+Pmax=? [ F "obstacle_hit_0" ]  
+Pmax=? [ F "obstacle_hit_1" ]  
+Pmax=? [ F "obstacle_hit_2" ]  
+
+Pmin=? [ F "obstacle_hit_0" ]  
+Pmin=? [ F "obstacle_hit_1" ]  
+Pmin=? [ F "obstacle_hit_2" ] 
+
+R{"steps_to_goal"}min=? [ F "all_goals" ]  // Expected steps to goal for all drone
+R{"steps_to_goal"}min=? [ F "goal_0" ]  // Expected steps to goal for drone 0
+R{"steps_to_goal"}min=? [ F "goal_1" ]  // Drone 1
+R{"steps_to_goal"}min=? [ F "goal_2" ]  // Drone 2
+

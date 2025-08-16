@@ -1,0 +1,138 @@
+mdp
+
+const int GRID_SIZE = 5;
+const int GRID_MAX  = GRID_SIZE - 1;
+const double P_DEVIATION = 0.005;
+const double P_STRAIGHT = 0.99;
+
+const int drone_no = 3;
+
+const int INIT_X = {0, 0, 4};
+const int INIT_Y = {0, 3, 0};
+const int GOAL_X= {4, 4, 0};
+const int GOAL_Y= {4, 0, 4};
+
+formula obstacle(x,y) = (x=2 & y=1) | (x=1 & y=3) | (x=3 & y=4);
+
+formula is_occupied(drone_id, x, y) =
+    for j in [0..drone_no-1] {
+        (j != drone_id) & (drone[j].x_loc = x) & (drone[j].y_loc = y) | ...
+    };
+
+formula is_drone_crash(drone_id,x_loc,y_loc) = 
+    for j in [0..drone_no-1] {
+        (j != drone_id) & (drone[j].x_loc = x_loc) & (drone[j].y_loc = y_loc) | ...
+    };
+
+
+
+formula is_in_grid(x, y,drone_id) = x>-1 & y>-1 & y<GRID_MAX+1 & x<GRID_MAX+1;
+
+root feature
+    all of drone[drone_no], Rewards, moveDirection[drone_no];
+endfeature
+
+feature drone
+    modules drone_implementation(id);
+endfeature
+
+feature moveDirection
+    modules moveDirection_impl(id);
+endfeature
+
+feature Rewards
+    rewards "steps_to_goal"
+        [move] true : 1;
+    endrewards
+endfeature
+
+module moveDirection_impl(move_id)
+    [select_north[move_id]] true -> true;
+    [select_south[move_id]] true -> true;
+    [select_east[move_id]]  true -> true;
+    [select_west[move_id]]  true -> true;
+endmodule
+
+module drone_implementation(drone_id)
+    x_loc : [0..GRID_MAX] init INIT_X[drone_id];
+    y_loc : [0..GRID_MAX] init INIT_Y[drone_id];
+    direction : [0..4] init 0;  // 0=select, 1=north, 2=south, 3=east, 4=west
+    drone_crash : bool init false;
+
+    // Select direction actions (same as before)
+    [select_north[drone_id]] direction=0 & !drone_crash -> (direction'=1);
+    [select_south[drone_id]] direction=0 & !drone_crash -> (direction'=2);
+    [select_east[drone_id]]  direction=0 & !drone_crash -> (direction'=3);
+    [select_west[drone_id]]  direction=0 & !drone_crash -> (direction'=4);
+
+    // Goal condition
+    [goal] (x_loc=GOAL_X[drone_id] & y_loc=GOAL_Y[drone_id]) 
+        -> 1.0 : (x_loc'=x_loc) & (y_loc'=y_loc);
+
+    // Success Move North
+    [move] !drone_crash & direction=1 & is_in_grid(x_loc,y_loc,drone_id) & !obstacle(x_loc, y_loc) & !is_drone_crash(drone_id,x_loc,y_loc) -> 
+        P_STRAIGHT : (x_loc'=x_loc) & (y_loc'=y_loc+1) & (direction'=0) +
+        P_DEVIATION : (x_loc'= x_loc+1 ) & 
+               (y_loc'=y_loc+1) & (direction'=0) +
+        P_DEVIATION : (x_loc'= x_loc-1) & 
+               (y_loc'=y_loc+1) & (direction'=0);
+
+    //Success Move South
+    [move] !drone_crash & direction=2 & is_in_grid(x_loc,y_loc,drone_id)& !obstacle(x_loc, y_loc) & !is_drone_crash(drone_id,x_loc,y_loc)  -> 
+        P_STRAIGHT : (x_loc'=x_loc) & (y_loc'=y_loc-1) & (direction'=0) +
+        P_DEVIATION : (x_loc'= x_loc+1 ) & 
+               (y_loc'= y_loc-1) & (direction'=0) +
+        P_DEVIATION : (x_loc'= x_loc-1) & 
+               (y_loc'= y_loc-1) & (direction'=0);
+
+    //Success Move East
+    [move] !drone_crash & direction=3 & is_in_grid(x_loc,y_loc,drone_id)& !obstacle(x_loc, y_loc) & !is_drone_crash(drone_id,x_loc,y_loc) -> 
+        P_STRAIGHT : (x_loc'=x_loc+1) & (y_loc'=y_loc) & (direction'=0) +
+        P_DEVIATION : (x_loc'= x_loc+1) & 
+               (y_loc'= y_loc+1) & (direction'=0) +
+        P_DEVIATION : (x_loc'= x_loc+1) & 
+               (y_loc'= y_loc-1) & (direction'=0);
+
+    //Success Move West
+    [move] !drone_crash & direction=4 & is_in_grid(x_loc,y_loc,drone_id)& !obstacle(x_loc, y_loc) & !is_drone_crash(drone_id,x_loc,y_loc) -> 
+        P_STRAIGHT : (x_loc'=x_loc-1) & (y_loc'=y_loc) & (direction'=0) +
+        P_DEVIATION : (x_loc'= x_loc-1) & 
+               (y_loc'= y_loc+1) & (direction'=0) +
+        P_DEVIATION : (x_loc'= x_loc-1) & 
+               (y_loc'= y_loc-1) & (direction'=0);
+
+    // Crashed drones stay put
+    [move] drone_crash -> (x_loc'=x_loc) & (y_loc'=y_loc) & (direction'=0);
+
+    [move] !drone_crash & direction=1 & !( is_in_grid(x_loc,y_loc,drone_id) & !obstacle(x_loc, y_loc) & !is_drone_crash(drone_id,x_loc,y_loc) ) -> (drone_crash'=true) & (direction'=0);
+    [move] !drone_crash & direction=2 & !( is_in_grid(x_loc,y_loc,drone_id) & !obstacle(x_loc, y_loc) & !is_drone_crash(drone_id,x_loc,y_loc) ) -> (drone_crash'=true) & (direction'=0);
+    [move] !drone_crash & direction=3 & !( is_in_grid(x_loc,y_loc,drone_id) & !obstacle(x_loc, y_loc) & !is_drone_crash(drone_id,x_loc,y_loc) ) -> (drone_crash'=true) & (direction'=0);
+    [move] !drone_crash & direction=4 & !( is_in_grid(x_loc,y_loc,drone_id) & !obstacle(x_loc, y_loc) & !is_drone_crash(drone_id,x_loc,y_loc) ) -> (drone_crash'=true) & (direction'=0);
+
+endmodule
+
+// GOAL: Drone i reached its goal location and did not crash
+label "goal_0" = (drone[0].x_loc = GOAL_X[0]) & (drone[0].y_loc = GOAL_Y[0]) & !drone[0].drone_crash;
+label "goal_1" = (drone[1].x_loc = GOAL_X[1]) & (drone[1].y_loc = GOAL_Y[1]) & !drone[1].drone_crash;
+label "goal_2" = (drone[2].x_loc = GOAL_X[2]) & (drone[2].y_loc = GOAL_Y[2]) & !drone[2].drone_crash;
+
+
+// COLLISION: Drone i has crashed (e.g., due to invalid move)
+label "collision_0" = drone[0].drone_crash;
+label "collision_1" = drone[1].drone_crash;
+label "collision_2" = drone[2].drone_crash;
+
+// OBSTACLE HIT: Drone i is currently located on an obstacle
+label "obstacle_hit_0" = obstacle(drone[0].x_loc, drone[0].y_loc);
+label "obstacle_hit_1" = obstacle(drone[1].x_loc, drone[1].y_loc);
+label "obstacle_hit_2" = obstacle(drone[2].x_loc, drone[2].y_loc);
+
+
+label "all_goals" = for i in [0..drone_no-1] {((drone[i].x_loc = GOAL_X[i]) & (drone[i].y_loc = GOAL_Y[i]) & !drone[i].drone_crash) & ... };
+
+label "all_collisions" = for i in [0..drone_no-1] {(drone[i].drone_crash) & ... };
+
+label "all_obstacle_hit" = for i in [0..drone_no-1] {(obstacle(drone[i].x_loc, drone[i].y_loc)) & ... };
+
+label "all_crash" = for i in [0..drone_no-1] {(obstacle(drone[i].x_loc, drone[i].y_loc) & drone[i].drone_crash) & ... };
+
